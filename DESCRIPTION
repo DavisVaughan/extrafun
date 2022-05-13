@@ -12,5 +12,6 @@ RoxygenNote: 7.1.2
 URL: https://github.com/DavisVaughan/extrafun
 BugReports: https://github.com/DavisVaughan/extrafun/issues
 Imports: 
+    glue,
     rlang,
     vctrs
