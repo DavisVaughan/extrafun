@@ -48,6 +48,18 @@ test_that("odd numbered inputs can be size zero", {
   })
 })
 
+test_that("retains names of inputs", {
+  value1 <- c(x = 1, y = 2)
+  value2 <- c(z = 3, w = 4)
+
+  out <- vec_case_when(
+    c(TRUE, FALSE), value1,
+    c(TRUE, TRUE), value2
+  )
+
+  expect_named(out, c("x", "w"))
+})
+
 test_that("even numbered inputs are cast to their common type", {
   expect_identical(vec_case_when(FALSE, 1, TRUE, 2L), 2)
   expect_identical(vec_case_when(FALSE, 1, TRUE, NA), NA_real_)
