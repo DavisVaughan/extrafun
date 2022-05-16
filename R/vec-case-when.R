@@ -55,6 +55,19 @@ vec_case_when <- function(...,
     .call = .call
   )
 
+  .ptype <- vec_ptype_common(
+    !!!values,
+    .ptype = .ptype,
+    .call = .call
+  )
+
+  # Cast early to generate correct error message indices
+  values <- vec_cast_common(
+    !!!values,
+    .to = .ptype,
+    .call = .call
+  )
+
   sizes <- list_sizes(wheres)
   invalid <- sizes != .size
   if (any(invalid)) {
@@ -115,19 +128,6 @@ vec_case_when <- function(...,
 
     values[[i]] <- value
   }
-
-  .ptype <- vec_ptype_common(
-    !!!values,
-    .ptype = .ptype,
-    .call = .call
-  )
-
-  # Cast early to generate correct error message indices
-  values <- vec_cast_common(
-    !!!values,
-    .to = .ptype,
-    .call = .call
-  )
 
   if (is.null(.default)) {
     .default <- vec_init(.ptype, n = size_unused)

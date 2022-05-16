@@ -34,6 +34,13 @@ test_that("can replace missing values", {
   )
 })
 
+test_that("Unused logical `NA` can still be cast to `...` ptype", {
+  # Requires that casting happen before recycling, because it recycles
+  # to size zero, resulting in a logical rather than an unspecified.
+  expect_identical(vec_case_when(TRUE, "x", FALSE, NA), "x")
+  expect_identical(vec_case_when(FALSE, "x", TRUE, NA), NA_character_)
+})
+
 test_that("odd numbered inputs can be size zero", {
   expect_identical(
     vec_case_when(
@@ -120,6 +127,12 @@ test_that("`.default` is cast to `...` ptype", {
   expect_snapshot(error = TRUE, {
     vec_case_when(FALSE, 1L, .default = 2.5)
   })
+})
+
+test_that("`.default` that is an unused logical `NA` can still be cast to `...` ptype", {
+  # Requires that casting happen before recycling, because it recycles
+  # to size zero, resulting in a logical rather than an unspecified.
+  expect_identical(vec_case_when(TRUE, "x", .default = NA), "x")
 })
 
 test_that("odd numbered inputs must all be the same size", {
