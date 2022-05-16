@@ -17,16 +17,16 @@ if_else <- function(condition,
     vec_case_when(
       condition, true = true,
       !condition, false = false,
-      ptype = ptype,
-      size = size
+      .ptype = ptype,
+      .size = size
     )
   } else {
     vec_case_when(
       condition, true = true,
       !condition, false = false,
       vec_equal_na(condition), missing = missing,
-      ptype = ptype,
-      size = size
+      .ptype = ptype,
+      .size = size
     )
   }
 }

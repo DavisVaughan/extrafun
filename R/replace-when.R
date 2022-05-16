@@ -7,7 +7,7 @@ replace_when <- function(x, ...) {
 
   size <- vec_size(x)
 
-  replace <- vec_case_when(..., ptype = ptype, size = size)
+  replace <- vec_case_when(..., .ptype = ptype, .size = size)
 
   # Where was a replacement made?
   loc <- which(!vec_equal_na(replace))

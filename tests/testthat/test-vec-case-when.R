@@ -86,39 +86,39 @@ test_that("even numbered inputs must be size 1 or same size as logical condition
 })
 
 test_that("`NA` in odd numbered inputs becomes `FALSE`", {
-  expect_identical(vec_case_when(NA, 1, default = 2), 2)
+  expect_identical(vec_case_when(NA, 1, .default = 2), 2)
 })
 
-test_that("A `NULL` `default` fills in with missing values", {
+test_that("A `NULL` `.default` fills in with missing values", {
   expect_identical(
     vec_case_when(c(TRUE, FALSE, FALSE), 1),
     c(1, NA, NA)
   )
 })
 
-test_that("`default` fills in all unused slots", {
+test_that("`.default` fills in all unused slots", {
   expect_identical(
-    vec_case_when(c(TRUE, FALSE, FALSE), 1, default = 2),
+    vec_case_when(c(TRUE, FALSE, FALSE), 1, .default = 2),
     c(1, 2, 2)
   )
 })
 
-test_that("`default` is initialized correctly in the logical / unspecified case", {
+test_that("`.default` is initialized correctly in the logical / unspecified case", {
   # i.e. `vec_ptype(NA)` is unspecified but the result should be finalized to logical
   expect_identical(vec_case_when(FALSE, NA), NA)
 })
 
-test_that("`default` must be size 1", {
+test_that("`.default` must be size 1", {
   expect_snapshot(error = TRUE, {
-    vec_case_when(FALSE, 1L, default = 2:3)
+    vec_case_when(FALSE, 1L, .default = 2:3)
   })
 })
 
-test_that("`default` is cast to `...` ptype", {
-  expect_identical(vec_case_when(FALSE, 1L, default = 2), 2L)
+test_that("`.default` is cast to `...` ptype", {
+  expect_identical(vec_case_when(FALSE, 1L, .default = 2), 2L)
 
   expect_snapshot(error = TRUE, {
-    vec_case_when(FALSE, 1L, default = 2.5)
+    vec_case_when(FALSE, 1L, .default = 2.5)
   })
 })
 
@@ -142,26 +142,26 @@ test_that("odd numbered inputs must be logical", {
   })
 })
 
-test_that("`size` overrides the odd numbered input sizes", {
+test_that("`.size` overrides the odd numbered input sizes", {
   expect_snapshot(error = TRUE, {
-    vec_case_when(TRUE, 1, size = 5)
+    vec_case_when(TRUE, 1, .size = 5)
   })
 
   # Make sure input numbering is right in the error message!
   expect_snapshot(error = TRUE, {
-    vec_case_when(c(TRUE, FALSE), 1, c(TRUE, FALSE, TRUE), 2, size = 2)
+    vec_case_when(c(TRUE, FALSE), 1, c(TRUE, FALSE, TRUE), 2, .size = 2)
   })
 })
 
-test_that("`ptype` overrides the even numbered input types", {
+test_that("`.ptype` overrides the even numbered input types", {
   expect_identical(
-    vec_case_when(FALSE, 1, TRUE, 2, ptype = integer()),
+    vec_case_when(FALSE, 1, TRUE, 2, .ptype = integer()),
     2L
   )
 
   # Make sure input numbering is right in the error message!
   expect_snapshot(error = TRUE, {
-    vec_case_when(FALSE, 1, TRUE, 2, ptype = character())
+    vec_case_when(FALSE, 1, TRUE, 2, .ptype = character())
   })
 })
 
@@ -179,7 +179,7 @@ test_that("can't have empty dots", {
     vec_case_when()
   })
   expect_snapshot(error = TRUE, {
-    vec_case_when(default = 1)
+    vec_case_when(.default = 1)
   })
 })
 

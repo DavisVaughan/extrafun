@@ -1,4 +1,4 @@
-coalesce <- function(..., ptype = NULL, size = NULL) {
+coalesce <- function(..., .ptype = NULL, .size = NULL) {
   args <- list2(...)
   args <- vec_recycle_common(!!!args)
 
@@ -12,7 +12,7 @@ coalesce <- function(..., ptype = NULL, size = NULL) {
 
   args <- vec_interleave(not_missing, args)
 
-  vec_case_when(!!!args, ptype = ptype, size = size)
+  vec_case_when(!!!args, .ptype = .ptype, .size = .size)
 }
 
 vec_not_equal_na <- function(x) {

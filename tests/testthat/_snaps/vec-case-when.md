@@ -19,19 +19,19 @@
     Error <vctrs_error_assert_size>
       `..2` must have size 4, not size 3.
 
-# `default` must be size 1
+# `.default` must be size 1
 
     Code
-      vec_case_when(FALSE, 1L, default = 2:3)
+      vec_case_when(FALSE, 1L, .default = 2:3)
     Error <rlang_error>
-      `default` must be size 1, not size 2.
+      `.default` must be size 1, not size 2.
 
-# `default` is cast to `...` ptype
+# `.default` is cast to `...` ptype
 
     Code
-      vec_case_when(FALSE, 1L, default = 2.5)
+      vec_case_when(FALSE, 1L, .default = 2.5)
     Error <vctrs_error_cast_lossy>
-      Can't convert `default` <double> to <integer>.
+      Can't convert `.default` <double> to <integer>.
 
 # odd numbered inputs must all be the same size
 
@@ -62,10 +62,10 @@
     Error <vctrs_error_cast_lossy>
       Can't convert `..3` <double> to <logical>.
 
-# `size` overrides the odd numbered input sizes
+# `.size` overrides the odd numbered input sizes
 
     Code
-      vec_case_when(TRUE, 1, size = 5)
+      vec_case_when(TRUE, 1, .size = 5)
     Error <rlang_error>
       All odd numbered `...` inputs must be size 5.
       i `..1` is size 1.
@@ -73,15 +73,15 @@
 ---
 
     Code
-      vec_case_when(c(TRUE, FALSE), 1, c(TRUE, FALSE, TRUE), 2, size = 2)
+      vec_case_when(c(TRUE, FALSE), 1, c(TRUE, FALSE, TRUE), 2, .size = 2)
     Error <rlang_error>
       All odd numbered `...` inputs must be size 2.
       i `..3` is size 3.
 
-# `ptype` overrides the even numbered input types
+# `.ptype` overrides the even numbered input types
 
     Code
-      vec_case_when(FALSE, 1, TRUE, 2, ptype = character())
+      vec_case_when(FALSE, 1, TRUE, 2, .ptype = character())
     Error <vctrs_error_incompatible_type>
       Can't convert `..2` <double> to <character>.
 
@@ -111,7 +111,7 @@
 ---
 
     Code
-      vec_case_when(default = 1)
+      vec_case_when(.default = 1)
     Error <rlang_error>
       `...` can't be empty.
 
