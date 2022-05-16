@@ -40,3 +40,13 @@
     Error <vctrs_error_assert_size>
       `false` must have size 2, not size 3.
 
+# must have empty dots
+
+    Code
+      if_else(TRUE, 1, 2, 3)
+    Error <rlib_error_dots_nonempty>
+      `...` must be empty.
+      x Problematic argument:
+      * ..1 = 3
+      i Did you forget to name an argument?
+

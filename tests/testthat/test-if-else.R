@@ -58,3 +58,9 @@ test_that("common size errors mention arg names", {
     if_else(c(TRUE, FALSE), 1, 1:3)
   })
 })
+
+test_that("must have empty dots", {
+  expect_snapshot(error = TRUE, {
+    if_else(TRUE, 1, 2, 3)
+  })
+})

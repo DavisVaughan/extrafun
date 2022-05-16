@@ -5,6 +5,8 @@ if_else <- function(condition,
                     missing = NULL,
                     ptype = NULL,
                     size = NULL) {
+  check_dots_empty0(...)
+
   condition <- vec_cast(
     x = condition,
     to = logical(),
