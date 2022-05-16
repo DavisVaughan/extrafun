@@ -4,6 +4,8 @@ vec_case_when <- function(...,
                           .size = NULL,
                           .call = caller_env()) {
   args <- list2(...)
+  args <- name_unnamed_args(args)
+
   n_args <- length(args)
 
   if (n_args == 0L) {
@@ -27,16 +29,6 @@ vec_case_when <- function(...,
 
   where_args <- names2(wheres)
   value_args <- names2(values)
-
-  where_unnamed <- where_args == ""
-  value_unnamed <- value_args == ""
-
-  where_args[where_unnamed] <- glue("..{loc_wheres[where_unnamed]}")
-  value_args[value_unnamed] <- glue("..{loc_values[value_unnamed]}")
-
-  # For common ptype/size determination error messages
-  names(wheres) <- where_args
-  names(values) <- value_args
 
   for (i in seq_len(n_inputs)) {
     where <- wheres[[i]]
