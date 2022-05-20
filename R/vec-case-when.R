@@ -33,10 +33,10 @@ vec_case_when <- function(...,
     where <- wheres[[i]]
     where_arg <- where_args[[i]]
 
-    where <- vec_cast(
+    vec_assert(
       x = where,
-      to = logical(),
-      x_arg = where_arg,
+      ptype = logical(),
+      arg = where_arg,
       call = .call
     )
 

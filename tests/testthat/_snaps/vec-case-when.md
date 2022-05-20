@@ -1,7 +1,7 @@
 # odd numbered inputs can be size zero
 
     Code
-      vec_case_when(integer(), 1:2)
+      vec_case_when(logical(), 1:2)
     Error <vctrs_error_assert_size>
       `..2` must have size 0, not size 2.
 
@@ -62,19 +62,21 @@
     Error <vctrs_error_incompatible_size>
       Can't recycle `..1` (size 2) to match `..3` (size 3).
 
-# odd numbered inputs must be logical
+# odd numbered inputs must be logical (and aren't cast to logical!)
 
     Code
-      vec_case_when(1.5, 2)
-    Error <vctrs_error_cast_lossy>
-      Can't convert `..1` <double> to <logical>.
+      vec_case_when(1, 2)
+    Error <vctrs_error_assert_ptype>
+      `..1` must be a vector with type <logical>.
+      Instead, it has type <double>.
 
 ---
 
     Code
-      vec_case_when(1, 2, 3.5, 4)
-    Error <vctrs_error_cast_lossy>
-      Can't convert `..3` <double> to <logical>.
+      vec_case_when(TRUE, 2, 3.5, 4)
+    Error <vctrs_error_assert_ptype>
+      `..3` must be a vector with type <logical>.
+      Instead, it has type <double>.
 
 # `.size` overrides the odd numbered input sizes
 
@@ -133,8 +135,9 @@
 
     Code
       vec_case_when(x = 1.5, 1)
-    Error <vctrs_error_cast_lossy>
-      Can't convert `x` <double> to <logical>.
+    Error <vctrs_error_assert_ptype>
+      `x` must be a vector with type <logical>.
+      Instead, it has type <double>.
 
 ---
 

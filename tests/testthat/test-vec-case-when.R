@@ -44,14 +44,14 @@ test_that("Unused logical `NA` can still be cast to `...` ptype", {
 test_that("odd numbered inputs can be size zero", {
   expect_identical(
     vec_case_when(
-      integer(), 1,
-      integer(), 2
+      logical(), 1,
+      logical(), 2
     ),
     numeric()
   )
 
   expect_snapshot(error = TRUE, {
-    vec_case_when(integer(), 1:2)
+    vec_case_when(logical(), 1:2)
   })
 })
 
@@ -165,14 +165,14 @@ test_that("odd numbered inputs must all be the same size", {
   })
 })
 
-test_that("odd numbered inputs must be logical", {
+test_that("odd numbered inputs must be logical (and aren't cast to logical!)", {
   expect_snapshot(error = TRUE, {
-    vec_case_when(1.5, 2)
+    vec_case_when(1, 2)
   })
 
   # Make sure input numbering is right in the error message!
   expect_snapshot(error = TRUE, {
-    vec_case_when(1, 2, 3.5, 4)
+    vec_case_when(TRUE, 2, 3.5, 4)
   })
 })
 

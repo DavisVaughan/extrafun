@@ -5,12 +5,13 @@
     Error <vctrs_error_assert_size>
       `true` must have size 1, not size 2.
 
-# `condition` must be castable to logical
+# `condition` must be logical (and isn't cast to logical!)
 
     Code
       if_else("x", 1, 2)
-    Error <vctrs_error_incompatible_type>
-      Can't convert `condition` <character> to <logical>.
+    Error <vctrs_error_assert_ptype>
+      `condition` must be a vector with type <logical>.
+      Instead, it has type <character>.
 
 # common type errors mention arg names
 

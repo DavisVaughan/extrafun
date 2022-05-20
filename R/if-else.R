@@ -7,10 +7,11 @@ if_else <- function(condition,
                     size = NULL) {
   check_dots_empty0(...)
 
-  condition <- vec_cast(
+  # Assert early since we `!` the `condition`
+  vec_assert(
     x = condition,
-    to = logical(),
-    x_arg = "condition"
+    ptype = logical(),
+    arg = "condition"
   )
 
   vec_case_when(
