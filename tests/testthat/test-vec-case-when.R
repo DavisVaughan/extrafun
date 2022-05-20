@@ -115,13 +115,23 @@ test_that("`.default` is initialized correctly in the logical / unspecified case
   expect_identical(vec_case_when(FALSE, NA), NA)
 })
 
-test_that("`.default` must be size 1", {
+test_that("`.default` can be vectorized, and is sliced to fit as needed", {
+  out <- vec_case_when(
+    c(FALSE, TRUE, FALSE, TRUE, FALSE), 1:5,
+    c(FALSE, TRUE, FALSE, FALSE, TRUE), 6:10,
+    .default = 11:15
+  )
+
+  expect_identical(out, c(11L, 2L, 13L, 4L, 10L))
+})
+
+test_that("`.default` doesn't participate in size determination", {
   expect_snapshot(error = TRUE, {
     vec_case_when(FALSE, 1L, .default = 2:3)
   })
 })
 
-test_that("`.default` is cast to `...` ptype", {
+test_that("`.default` doesn't participate in common type determination", {
   expect_identical(vec_case_when(FALSE, 1L, .default = 2), 2L)
 
   expect_snapshot(error = TRUE, {

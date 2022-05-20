@@ -19,14 +19,14 @@
     Error <vctrs_error_assert_size>
       `..2` must have size 4, not size 3.
 
-# `.default` must be size 1
+# `.default` doesn't participate in size determination
 
     Code
       vec_case_when(FALSE, 1L, .default = 2:3)
-    Error <rlang_error>
-      `.default` must be size 1, not size 2.
+    Error <vctrs_error_assert_size>
+      `.default` must have size 1, not size 2.
 
-# `.default` is cast to `...` ptype
+# `.default` doesn't participate in common type determination
 
     Code
       vec_case_when(FALSE, 1L, .default = 2.5)

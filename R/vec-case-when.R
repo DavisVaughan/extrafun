@@ -100,61 +100,79 @@ vec_case_when <- function(...,
     unused[where] <- FALSE
   }
 
-  # Unused locations are where the `.default` goes
-  unused <- vec_as_location(unused, n = .size)
-  locs[[n_pieces]] <- unused
-
-  size_unused <- vec_size(unused)
-
   for (i in seq_len(n_inputs)) {
     loc <- locs[[i]]
     value <- values[[i]]
-    value_arg <- value_args[[i]]
+    arg <- value_args[[i]]
 
-    if (vec_size(value) == 1L) {
-      # Recycle "up"
-      value <- vec_recycle(value, size = vec_size(loc))
-    } else {
-      # Slice "down", but enforce same size as logical conditions
-      vec_assert(
-        x = value,
-        size = .size,
-        arg = value_arg,
-        call = .call
-      )
-
-      value <- vec_slice(value, loc)
-    }
+    value <- value_reslice(
+      value = value,
+      size = .size,
+      loc = loc,
+      arg = arg,
+      call = .call
+    )
 
     values[[i]] <- value
   }
 
+  # Unused locations are where the `.default` goes
+  loc_default <- vec_as_location(unused, n = .size)
+  locs[[n_pieces]] <- loc_default
+
   if (is.null(.default)) {
-    .default <- vec_init(.ptype, n = size_unused)
+    .default <- vec_init(.ptype, n = vec_size(loc_default))
   } else {
-    # Enforce invariant that `.default` doesn't participate in ptype or size
-    # determination. Which means it must be size 1 so it can be recycled to any
-    # other size.
-    size_default <- vec_size(.default)
+    .default <- vec_cast(
+      x = .default,
+      to = .ptype,
+      x_arg = ".default",
+      call = .call
+    )
 
-    if (size_default != 1L) {
-      message <- glue("`.default` must be size 1, not size {size_default}.")
-      abort(message, call = .call)
-    }
-
-    .default <- vec_cast(.default, to = .ptype, x_arg = ".default", call = .call)
-    .default <- vec_recycle(.default, size = size_unused)
+    .default <- value_reslice(
+      value = .default,
+      size = .size,
+      loc = loc_default,
+      arg = ".default",
+      call = .call
+    )
   }
-
-  # Remove names used for error messages
-  values <- unname(values)
 
   # Append `.default` to the end
   values <- c(values, list(.default))
+
+  # Remove names used for error messages. We don't want them in the result.
+  values <- unname(values)
 
   vec_unchop(
     x = values,
     indices = locs,
     ptype = .ptype
   )
+}
+
+value_reslice <- function(value,
+                          size,
+                          loc,
+                          arg,
+                          ...,
+                          call = caller_env()) {
+  check_dots_empty0(...)
+
+  if (vec_size(value) == 1L) {
+    # Recycle "up"
+    vec_recycle(value, size = vec_size(loc))
+  } else {
+    # Slice "down", but enforce that `value` started at the same size as the
+    # logical conditions
+    vec_assert(
+      x = value,
+      size = size,
+      arg = arg,
+      call = call
+    )
+
+    vec_slice(value, loc)
+  }
 }
