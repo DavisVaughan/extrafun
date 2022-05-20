@@ -35,6 +35,10 @@ test_that("If `missing` is supplied, uses it", {
   )
 })
 
+test_that("`missing` participates in common type determination if present", {
+  expect_identical(if_else(TRUE, 1L, 2L, missing = 3.5), 1)
+})
+
 test_that("`condition` must be castable to logical", {
   expect_snapshot(error = TRUE, {
     if_else("x", 1, 2)
