@@ -145,6 +145,15 @@ test_that("`.default` that is an unused logical `NA` can still be cast to `...` 
   expect_identical(vec_case_when(TRUE, "x", .default = NA), "x")
 })
 
+test_that("`.default_arg` can be customized", {
+  expect_snapshot(error = TRUE, {
+    vec_case_when(FALSE, 1L, .default = 2:3, .default_arg = "foo")
+  })
+  expect_snapshot(error = TRUE, {
+    vec_case_when(FALSE, 1L, .default = 2.5, .default_arg = "foo")
+  })
+})
+
 test_that("odd numbered inputs must all be the same size", {
   expect_snapshot(error = TRUE, {
     vec_case_when(c(TRUE, FALSE), 1, TRUE, 2)

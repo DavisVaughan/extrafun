@@ -10,6 +10,7 @@ replace_when <- function(x, ...) {
   vec_case_when(
     ...,
     .default = x,
+    .default_arg = "x",
     .ptype = ptype,
     .size = size
   )

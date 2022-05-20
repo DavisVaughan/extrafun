@@ -33,6 +33,20 @@
     Error <vctrs_error_cast_lossy>
       Can't convert `.default` <double> to <integer>.
 
+# `.default_arg` can be customized
+
+    Code
+      vec_case_when(FALSE, 1L, .default = 2:3, .default_arg = "foo")
+    Error <vctrs_error_assert_size>
+      `foo` must have size 1, not size 2.
+
+---
+
+    Code
+      vec_case_when(FALSE, 1L, .default = 2.5, .default_arg = "foo")
+    Error <vctrs_error_cast_lossy>
+      Can't convert `foo` <double> to <integer>.
+
 # odd numbered inputs must all be the same size
 
     Code

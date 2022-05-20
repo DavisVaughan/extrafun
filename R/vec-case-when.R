@@ -1,5 +1,6 @@
 vec_case_when <- function(...,
                           .default = NULL,
+                          .default_arg = ".default",
                           .ptype = NULL,
                           .size = NULL,
                           .call = caller_env()) {
@@ -126,7 +127,7 @@ vec_case_when <- function(...,
     .default <- vec_cast(
       x = .default,
       to = .ptype,
-      x_arg = ".default",
+      x_arg = .default_arg,
       call = .call
     )
 
@@ -134,7 +135,7 @@ vec_case_when <- function(...,
       value = .default,
       size = .size,
       loc = loc_default,
-      arg = ".default",
+      arg = .default_arg,
       call = .call
     )
   }
