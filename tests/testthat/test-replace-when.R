@@ -32,6 +32,13 @@ test_that("stops replacing at the first hit", {
   expect_identical(out, c(10, 99, 99, 99, 0, 100, 6))
 })
 
+test_that("works when the replacement values are missing values", {
+  expect_identical(
+    replace_when(c(1, 2), c(TRUE, FALSE), NA),
+    c(NA, 2)
+  )
+})
+
 test_that("can handle when `x` is <unspecified>", {
   x <- NA
   expect_identical(replace_when(x, is.na(x), TRUE), TRUE)
