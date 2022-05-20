@@ -19,19 +19,12 @@
     Error <vctrs_error_assert_size>
       `..2` must have size 4, not size 3.
 
-# `.default` doesn't participate in size determination
+# `.default` must be size 1 or same size as logical conditions (exact same as any other even numbered input)
 
     Code
       vec_case_when(FALSE, 1L, .default = 2:3)
     Error <vctrs_error_assert_size>
       `.default` must have size 1, not size 2.
-
-# `.default` doesn't participate in common type determination
-
-    Code
-      vec_case_when(FALSE, 1L, .default = 2.5)
-    Error <vctrs_error_cast_lossy>
-      Can't convert `.default` <double> to <integer>.
 
 # `.default_arg` can be customized
 
@@ -43,9 +36,16 @@
 ---
 
     Code
-      vec_case_when(FALSE, 1L, .default = 2.5, .default_arg = "foo")
-    Error <vctrs_error_cast_lossy>
-      Can't convert `foo` <double> to <integer>.
+      vec_case_when(FALSE, 1L, .default = "x", .default_arg = "foo")
+    Error <vctrs_error_incompatible_type>
+      Can't combine `..2` <integer> and `foo` <character>.
+
+# `.default_arg` is validated
+
+    Code
+      vec_case_when(TRUE, 1, .default_arg = 1)
+    Error <rlang_error>
+      `.default_arg` must be a string.
 
 # odd numbered inputs must all be the same size
 

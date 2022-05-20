@@ -125,18 +125,14 @@ test_that("`.default` can be vectorized, and is sliced to fit as needed", {
   expect_identical(out, c(11L, 2L, 13L, 4L, 10L))
 })
 
-test_that("`.default` doesn't participate in size determination", {
+test_that("`.default` must be size 1 or same size as logical conditions (exact same as any other even numbered input)", {
   expect_snapshot(error = TRUE, {
     vec_case_when(FALSE, 1L, .default = 2:3)
   })
 })
 
-test_that("`.default` doesn't participate in common type determination", {
-  expect_identical(vec_case_when(FALSE, 1L, .default = 2), 2L)
-
-  expect_snapshot(error = TRUE, {
-    vec_case_when(FALSE, 1L, .default = 2.5)
-  })
+test_that("`.default` participates in common type determination (exact same as any other even numbered input)", {
+  expect_identical(vec_case_when(FALSE, 1L, .default = 2), 2)
 })
 
 test_that("`.default` that is an unused logical `NA` can still be cast to `...` ptype", {
@@ -150,7 +146,13 @@ test_that("`.default_arg` can be customized", {
     vec_case_when(FALSE, 1L, .default = 2:3, .default_arg = "foo")
   })
   expect_snapshot(error = TRUE, {
-    vec_case_when(FALSE, 1L, .default = 2.5, .default_arg = "foo")
+    vec_case_when(FALSE, 1L, .default = "x", .default_arg = "foo")
+  })
+})
+
+test_that("`.default_arg` is validated", {
+  expect_snapshot(error = TRUE, {
+    vec_case_when(TRUE, 1, .default_arg = 1)
   })
 })
 

@@ -20,18 +20,16 @@ vec_case_when <- function(...,
     abort(message, call = .call)
   }
 
-  n_inputs <- n_args / 2L
+  if (!is_string(.default_arg)) {
+    abort("`.default_arg` must be a string.", call = .call)
+  }
 
+  n_wheres <- n_args / 2L
   loc_wheres <- seq.int(1L, n_args - 1L, by = 2)
-  loc_values <- loc_wheres + 1L
-
   wheres <- args[loc_wheres]
-  values <- args[loc_values]
-
   where_args <- names2(wheres)
-  value_args <- names2(values)
 
-  for (i in seq_len(n_inputs)) {
+  for (i in seq_len(n_wheres)) {
     where <- wheres[[i]]
     where_arg <- where_args[[i]]
 
@@ -56,19 +54,6 @@ vec_case_when <- function(...,
     .call = .call
   )
 
-  .ptype <- vec_ptype_common(
-    !!!values,
-    .ptype = .ptype,
-    .call = .call
-  )
-
-  # Cast early to generate correct error message indices
-  values <- vec_cast_common(
-    !!!values,
-    .to = .ptype,
-    .call = .call
-  )
-
   sizes <- list_sizes(wheres)
   invalid <- sizes != .size
   if (any(invalid)) {
@@ -85,13 +70,37 @@ vec_case_when <- function(...,
     abort(message, call = .call)
   }
 
-  # `+ 1L` to make room for `.default`
-  n_pieces <- n_inputs + 1L
+  n_values <- n_wheres + 1L
+  loc_values <- loc_wheres + 1L
+  values <- args[loc_values]
+  # Allow `.default` to participate in common type determination.
+  # In terms of size/ptype behavior it is exactly like any other `values` element.
+  values <- c(values, list2("{.default_arg}" := .default))
+  value_args <- names2(values)
 
-  locs <- vector("list", n_pieces)
+  .ptype <- vec_ptype_common(
+    !!!values,
+    .ptype = .ptype,
+    .call = .call
+  )
+
+  # Cast early to generate correct error message indices
+  values <- vec_cast_common(
+    !!!values,
+    .to = .ptype,
+    .call = .call
+  )
+
+  if (is.null(.default)) {
+    # If the `.default` was `NULL` all along, update it with the now known
+    # common type based on the actual inputs
+    values[[n_values]] <- vec_init(.ptype)
+  }
+
+  locs <- vector("list", n_values)
   unused <- vec_rep(TRUE, times = .size)
 
-  for (i in seq_len(n_inputs)) {
+  for (i in seq_len(n_wheres)) {
     where <- wheres[[i]]
 
     loc <- unused & where
@@ -101,47 +110,32 @@ vec_case_when <- function(...,
     unused[where] <- FALSE
   }
 
-  for (i in seq_len(n_inputs)) {
+  # Unused locations are where the `.default` goes
+  locs[[n_values]] <- vec_as_location(unused, n = .size)
+
+  for (i in seq_len(n_values)) {
     loc <- locs[[i]]
     value <- values[[i]]
     arg <- value_args[[i]]
 
-    value <- value_reslice(
-      value = value,
-      size = .size,
-      loc = loc,
-      arg = arg,
-      call = .call
-    )
+    if (vec_size(value) == 1L) {
+      # Recycle "up"
+      value <- vec_recycle(value, size = vec_size(loc))
+    } else {
+      # Slice "down", but enforce that `value` started at the same size as the
+      # logical conditions
+      vec_assert(
+        x = value,
+        size = .size,
+        arg = arg,
+        call = .call
+      )
+
+      value <- vec_slice(value, loc)
+    }
 
     values[[i]] <- value
   }
-
-  # Unused locations are where the `.default` goes
-  loc_default <- vec_as_location(unused, n = .size)
-  locs[[n_pieces]] <- loc_default
-
-  if (is.null(.default)) {
-    .default <- vec_init(.ptype, n = vec_size(loc_default))
-  } else {
-    .default <- vec_cast(
-      x = .default,
-      to = .ptype,
-      x_arg = .default_arg,
-      call = .call
-    )
-
-    .default <- value_reslice(
-      value = .default,
-      size = .size,
-      loc = loc_default,
-      arg = .default_arg,
-      call = .call
-    )
-  }
-
-  # Append `.default` to the end
-  values <- c(values, list(.default))
 
   # Remove names used for error messages. We don't want them in the result.
   values <- unname(values)
@@ -151,29 +145,4 @@ vec_case_when <- function(...,
     indices = locs,
     ptype = .ptype
   )
-}
-
-value_reslice <- function(value,
-                          size,
-                          loc,
-                          arg,
-                          ...,
-                          call = caller_env()) {
-  check_dots_empty0(...)
-
-  if (vec_size(value) == 1L) {
-    # Recycle "up"
-    vec_recycle(value, size = vec_size(loc))
-  } else {
-    # Slice "down", but enforce that `value` started at the same size as the
-    # logical conditions
-    vec_assert(
-      x = value,
-      size = size,
-      arg = arg,
-      call = call
-    )
-
-    vec_slice(value, loc)
-  }
 }
