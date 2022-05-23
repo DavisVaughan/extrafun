@@ -19,3 +19,24 @@
     Error <rlang_error>
       `...` can't be empty.
 
+---
+
+    Code
+      coalesce(NULL)
+    Error <rlang_error>
+      `...` can't be empty.
+
+# `.size` can override the common size
+
+    Code
+      coalesce(1L, 2:4, .size = 2L)
+    Error <vctrs_error_incompatible_size>
+      Can't recycle `..2` (size 3) to size 2.
+
+---
+
+    Code
+      coalesce(1L, x = 2:4, .size = 2L)
+    Error <vctrs_error_incompatible_size>
+      Can't recycle `x` (size 3) to size 2.
+
