@@ -54,22 +54,6 @@ vec_case_when <- function(...,
     .call = .call
   )
 
-  sizes <- list_sizes(wheres)
-  invalid <- sizes != .size
-  if (any(invalid)) {
-    invalid <- which(invalid)
-    invalid <- invalid[[1L]]
-    invalid_arg <- where_args[[invalid]]
-    invalid_size <- sizes[[invalid]]
-
-    message <- c(
-      glue("All odd numbered `...` inputs must be size {.size}."),
-      i = glue("`{invalid_arg}` is size {invalid_size}.")
-    )
-
-    abort(message, call = .call)
-  }
-
   n_values <- n_wheres + 1L
   loc_values <- loc_wheres + 1L
   values <- args[loc_values]
@@ -97,10 +81,35 @@ vec_case_when <- function(...,
     values[[n_values]] <- vec_init(.ptype)
   }
 
+  # Check for correct sizes
+  for (i in seq_len(n_wheres)) {
+    where <- wheres[[i]]
+    where_arg <- where_args[[i]]
+
+    vec_assert(where, size = .size, arg = where_arg, call = .call)
+  }
+
+  value_sizes <- list_sizes(values)
+
+  for (i in seq_len(n_values)) {
+    value <- values[[i]]
+    value_arg <- value_args[[i]]
+    value_size <- value_sizes[[i]]
+
+    if (value_size != 1L) {
+      vec_assert(value, size = .size, arg = value_arg, call = .call)
+    }
+  }
+
   locs <- vector("list", n_values)
   unused <- vec_rep(TRUE, times = .size)
+  n_used <- 0L
 
   for (i in seq_len(n_wheres)) {
+    if (!any(unused)) {
+      break
+    }
+
     where <- wheres[[i]]
 
     loc <- unused & where
@@ -108,29 +117,25 @@ vec_case_when <- function(...,
     locs[[i]] <- loc
 
     unused[where] <- FALSE
+    n_used <- n_used + 1L
   }
 
-  # Unused locations are where the `.default` goes
-  locs[[n_values]] <- vec_as_location(unused, n = .size)
+  if (n_used == n_wheres && any(unused)) {
+    # If we still have unused locations left, those are for the `.default`
+    locs[[n_values]] <- vec_as_location(unused, n = .size)
+    n_used <- n_used + 1L
+  }
 
-  for (i in seq_len(n_values)) {
+  for (i in seq_len(n_used)) {
     loc <- locs[[i]]
     value <- values[[i]]
-    arg <- value_args[[i]]
+    value_size <- value_sizes[[i]]
 
-    if (vec_size(value) == 1L) {
+    if (value_size == 1L) {
       # Recycle "up"
       value <- vec_recycle(value, size = vec_size(loc))
     } else {
-      # Slice "down", but enforce that `value` started at the same size as the
-      # logical conditions
-      vec_assert(
-        x = value,
-        size = .size,
-        arg = arg,
-        call = .call
-      )
-
+      # Slice "down"
       value <- vec_slice(value, loc)
     }
 
@@ -139,6 +144,13 @@ vec_case_when <- function(...,
 
   # Remove names used for error messages. We don't want them in the result.
   values <- unname(values)
+
+  if (n_used != n_values) {
+    # Trim to only what will be used to fill the result
+    seq_used <- seq_len(n_used)
+    values <- values[seq_used]
+    locs <- locs[seq_used]
+  }
 
   vec_unchop(
     x = values,

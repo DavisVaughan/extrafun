@@ -51,9 +51,8 @@
 
     Code
       vec_case_when(c(TRUE, FALSE), 1, TRUE, 2)
-    Error <rlang_error>
-      All odd numbered `...` inputs must be size 2.
-      i `..3` is size 1.
+    Error <vctrs_error_assert_size>
+      `..3` must have size 2, not size 1.
 
 ---
 
@@ -82,17 +81,15 @@
 
     Code
       vec_case_when(TRUE, 1, .size = 5)
-    Error <rlang_error>
-      All odd numbered `...` inputs must be size 5.
-      i `..1` is size 1.
+    Error <vctrs_error_assert_size>
+      `..1` must have size 5, not size 1.
 
 ---
 
     Code
       vec_case_when(c(TRUE, FALSE), 1, c(TRUE, FALSE, TRUE), 2, .size = 2)
-    Error <rlang_error>
-      All odd numbered `...` inputs must be size 2.
-      i `..3` is size 3.
+    Error <vctrs_error_assert_size>
+      `..3` must have size 2, not size 3.
 
 # `.ptype` overrides the even numbered input types
 
@@ -143,9 +140,8 @@
 
     Code
       vec_case_when(x = TRUE, 1, y = c(TRUE, FALSE), 2)
-    Error <rlang_error>
-      All odd numbered `...` inputs must be size 2.
-      i `x` is size 1.
+    Error <vctrs_error_assert_size>
+      `x` must have size 2, not size 1.
 
 ---
 

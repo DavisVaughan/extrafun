@@ -71,9 +71,8 @@
 
     Code
       fct_when(TRUE, "x", .size = 2)
-    Error <rlang_error>
-      All odd numbered `...` inputs must be size 2.
-      i `..1` is size 1.
+    Error <vctrs_error_assert_size>
+      `..1` must have size 2, not size 1.
 
 # `.ordered` is validated
 

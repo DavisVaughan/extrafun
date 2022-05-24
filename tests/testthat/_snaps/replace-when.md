@@ -2,9 +2,8 @@
 
     Code
       replace_when(5:10, c(TRUE, FALSE), 2)
-    Error <rlang_error>
-      All odd numbered `...` inputs must be size 6.
-      i `..1` is size 2.
+    Error <vctrs_error_assert_size>
+      `..1` must have size 6, not size 2.
 
 ---
 
