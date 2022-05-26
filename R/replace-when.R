@@ -1,3 +1,4 @@
+#' @export
 replace_when <- function(x, ...) {
   # Finalize the ptype to handle the case when `x` is unspecified (i.e. all `NA`).
   # This is fine here because we know it came in finalized already (because

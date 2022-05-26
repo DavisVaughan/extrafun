@@ -1,3 +1,4 @@
+#' @export
 if_else <- function(condition,
                     true,
                     false,

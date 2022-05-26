@@ -1,3 +1,4 @@
+#' @export
 vec_case_when <- function(...,
                           .default = NULL,
                           .default_arg = ".default",

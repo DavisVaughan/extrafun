@@ -1,3 +1,4 @@
+#' @export
 case_when <- function(...,
                       .default = NULL,
                       .ptype = NULL,

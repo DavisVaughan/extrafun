@@ -1,3 +1,4 @@
+#' @export
 fct_when <- function(...,
                      .default = NULL,
                      .size = NULL,

@@ -1,3 +1,4 @@
+#' @export
 coalesce <- function(..., .ptype = NULL, .size = NULL) {
   args <- list2(...)
 
