@@ -92,8 +92,55 @@ test_that("even numbered inputs must be size 1 or same size as logical condition
   })
 })
 
-test_that("`NA` in odd numbered inputs becomes `FALSE`", {
-  expect_identical(vec_case_when(NA, 1, .default = 2), 2)
+test_that("Unhandled `NA` propagates through as a missing value", {
+  expect_identical(
+    vec_case_when(NA, 1, .default = 2),
+    NA_real_
+  )
+
+  expect_identical(
+    vec_case_when(
+      c(FALSE, NA, TRUE),
+      2,
+      c(NA, FALSE, TRUE),
+      3,
+      .default = 4
+    ),
+    c(NA, NA, 2)
+  )
+})
+
+test_that("`NA` is overridden by any `TRUE` values", {
+  x <- c(1, 2, NA, 3)
+  expect <- c("one", "not_one", "missing", "not_one")
+
+  # `TRUE` overriding before the `NA`
+  expect_identical(
+    vec_case_when(
+      is.na(x), "missing",
+      x == 1, "one",
+      .default = "not_one"
+    ),
+    expect
+  )
+
+  # `TRUE` overriding after the `NA`
+  expect_identical(
+    vec_case_when(
+      x == 1, "one",
+      is.na(x), "missing",
+      .default = "not_one"
+    ),
+    expect
+  )
+})
+
+test_that("works when there is a used `.default` and no missing values", {
+  expect_identical(vec_case_when(c(TRUE, FALSE), 1, .default = 3:4), c(1, 4))
+})
+
+test_that("works when there are missing values but no `.default`", {
+  expect_identical(vec_case_when(c(TRUE, NA), 1), c(1, NA))
 })
 
 test_that("A `NULL` `.default` fills in with missing values", {

@@ -40,13 +40,6 @@ vec_case_when <- function(...,
       arg = where_arg,
       call = .call
     )
-
-    if (anyNA(where)) {
-      # `NA` in `where` is skipped
-      where <- vec_assign(where, vec_equal_na(where), FALSE)
-    }
-
-    wheres[[i]] <- where
   }
 
   .size <- vec_size_common(
@@ -55,16 +48,16 @@ vec_case_when <- function(...,
     .call = .call
   )
 
-  n_values <- n_wheres + 1L
+  n_values <- n_wheres
   loc_values <- loc_wheres + 1L
   values <- args[loc_values]
-  # Allow `.default` to participate in common type determination.
-  # In terms of size/ptype behavior it is exactly like any other `values` element.
-  values <- c(values, list2("{.default_arg}" := .default))
   value_args <- names2(values)
 
+  # Allow `.default` to participate in common type determination.
+  # In terms of size/ptype behavior it is exactly like any other `values` element.
   .ptype <- vec_ptype_common(
     !!!values,
+    "{.default_arg}" := .default,
     .ptype = .ptype,
     .call = .call
   )
@@ -77,9 +70,14 @@ vec_case_when <- function(...,
   )
 
   if (is.null(.default)) {
-    # If the `.default` was `NULL` all along, update it with the now known
-    # common type based on the actual inputs
-    values[[n_values]] <- vec_init(.ptype)
+    .default <- vec_init(.ptype)
+  } else {
+    .default <- vec_cast(
+      x = .default,
+      to = .ptype,
+      x_arg = .default_arg,
+      call = .call
+    )
   }
 
   # Check for correct sizes
@@ -102,9 +100,22 @@ vec_case_when <- function(...,
     }
   }
 
-  locs <- vector("list", n_values)
-  unused <- vec_rep(TRUE, times = .size)
+  default_size <- vec_size(.default)
+
+  if (default_size != 1L) {
+    vec_assert(.default, size = .size, arg = .default_arg, call = .call)
+  }
+
   n_used <- 0L
+  locs <- vector("list", n_values)
+
+  # Starts as unused. Any `TRUE` value in `where` flips it to used.
+  unused <- vec_rep(TRUE, times = .size)
+
+  # Track unhandled missings using boolean operations.
+  # If `FALSE`, any `NA` in `where` flips it to `NA`.
+  # Any `TRUE` in `where` overrides both `NA` and `FALSE` to `TRUE`.
+  missing <- vec_rep(FALSE, times = .size)
 
   for (i in seq_len(n_wheres)) {
     if (!any(unused)) {
@@ -114,17 +125,43 @@ vec_case_when <- function(...,
     where <- wheres[[i]]
 
     loc <- unused & where
-    loc <- vec_as_location(loc, n = .size)
+    missing <- missing | where
+
+    loc <- which(loc)
     locs[[i]] <- loc
 
-    unused[where] <- FALSE
+    unused[loc] <- FALSE
     n_used <- n_used + 1L
   }
 
-  if (n_used == n_wheres && any(unused)) {
-    # If we still have unused locations left, those are for the `.default`
-    locs[[n_values]] <- vec_as_location(unused, n = .size)
-    n_used <- n_used + 1L
+  if (n_used == n_wheres) {
+    # If all of the `where` conditions are used,
+    # then we check if we need `missing` or `.default`
+
+    missing <- vec_equal_na(missing)
+
+    if (any(missing)) {
+      missing <- which(missing)
+
+      n_used <- n_used + 1L
+      n_values <- n_values + 1L
+      locs[[n_values]] <- missing
+      values[[n_values]] <- vec_init(.ptype)
+      value_sizes[[n_values]] <- 1L
+
+      # Missing locations don't count as unused
+      unused[missing] <- FALSE
+    }
+
+    if (any(unused)) {
+      unused <- which(unused)
+
+      n_used <- n_used + 1L
+      n_values <- n_values + 1L
+      locs[[n_values]] <- unused
+      values[[n_values]] <- .default
+      value_sizes[[n_values]] <- default_size
+    }
   }
 
   for (i in seq_len(n_used)) {

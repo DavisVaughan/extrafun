@@ -15,12 +15,15 @@ if_else <- function(condition,
     arg = "condition"
   )
 
-  vec_case_when(
+  args <- list(
     condition, true = true,
-    !condition, false = false,
-    .default = missing,
-    .default_arg = "missing",
-    .ptype = ptype,
-    .size = size
+    !condition, false = false
   )
+
+  if (!is.null(missing)) {
+    missing <- list(vec_equal_na(condition), missing = missing)
+    args <- c(args, missing)
+  }
+
+  vec_case_when(!!!args, .ptype = ptype, .size = size)
 }
