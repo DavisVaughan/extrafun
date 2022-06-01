@@ -91,11 +91,12 @@ vec_case_when <- function(...,
   value_sizes <- list_sizes(values)
 
   for (i in seq_len(n_values)) {
-    value <- values[[i]]
-    value_arg <- value_args[[i]]
     value_size <- value_sizes[[i]]
 
     if (value_size != 1L) {
+      value <- values[[i]]
+      value_arg <- value_args[[i]]
+
       vec_assert(value, size = .size, arg = value_arg, call = .call)
     }
   }
