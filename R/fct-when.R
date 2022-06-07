@@ -1,6 +1,7 @@
 #' @export
 fct_when <- function(...,
                      .default = NULL,
+                     .missing = NULL,
                      .size = NULL,
                      .ordered = TRUE) {
   args <- list2(...)
@@ -50,7 +51,15 @@ fct_when <- function(...,
       "`.default` must be a string.",
       i = glue("`.default` is length {vec_size(.default)}.")
     )
+    abort(message)
+  }
 
+  # Check that `.missing` is length 1 if supplied
+  if (!is.null(.missing) && vec_size(.missing) != 1L) {
+    message <- c(
+      "`.missing` must be a string.",
+      i = glue("`.missing` is length {vec_size(.missing)}.")
+    )
     abort(message)
   }
 
@@ -59,13 +68,14 @@ fct_when <- function(...,
   out <- vec_case_when(
     !!!args,
     .default = .default,
+    .missing = .missing,
     .ptype = character(),
     .size = .size
   )
 
-  # Include `.default` at the end
-  levels <- c(values, list(.default))
-  levels <- unname(levels)
+  # Include `.default` and `.missing` at the end, in that order
+  levels <- unname(values)
+  levels <- c(levels, list(.default, .missing))
   levels <- vec_unchop(levels, ptype = character())
 
   if (vec_duplicate_any(levels)) {

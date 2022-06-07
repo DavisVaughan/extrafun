@@ -12,6 +12,13 @@
     Error <vctrs_error_incompatible_type>
       Can't convert `.default` <double> to <character>.
 
+# `.missing` is cast to character
+
+    Code
+      fct_when(TRUE, "x", .missing = 1)
+    Error <vctrs_error_incompatible_type>
+      Can't convert `.missing` <double> to <character>.
+
 # levels can't be duplicated
 
     Code
@@ -24,6 +31,14 @@
 
     Code
       fct_when(c(TRUE, FALSE), "x", .default = "x")
+    Error <rlang_error>
+      Factor levels can't be duplicated.
+      i Level "x" is duplicated.
+
+---
+
+    Code
+      fct_when(c(TRUE, FALSE), "x", .missing = "x")
     Error <rlang_error>
       Factor levels can't be duplicated.
       i Level "x" is duplicated.
@@ -66,6 +81,14 @@
     Error <rlang_error>
       `.default` must be a string.
       i `.default` is length 2.
+
+# `.missing` must be a single string
+
+    Code
+      fct_when(c(TRUE, FALSE), "x", .missing = c("a", "b"))
+    Error <rlang_error>
+      `.missing` must be a string.
+      i `.missing` is length 2.
 
 # `.size` can enforce a size for the logical conditions
 

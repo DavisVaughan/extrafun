@@ -32,6 +32,13 @@ test_that("stops replacing at the first hit", {
   expect_identical(out, c(10, 99, 99, 99, 0, 100, 6))
 })
 
+test_that("retains `x` value when computed condition results in `NA`", {
+  expect_identical(
+    replace_when(c(1, 2), c(TRUE, NA), 99),
+    c(99, 2)
+  )
+})
+
 test_that("works when the replacement values are missing values", {
   expect_identical(
     replace_when(c(1, 2), c(TRUE, FALSE), NA),
