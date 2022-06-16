@@ -82,9 +82,14 @@ case <- function(...,
     args_values[[i]] <- values
   }
 
-  args <- vec_interleave(args_conditions, args_values)
-
-  vec_case_when(!!!args, .default = .default, .ptype = .ptype, .size = .size)
+  vec_case_when(
+    conditions = args_conditions,
+    values = args_values,
+    default = .default,
+    default_arg = ".default",
+    ptype = .ptype,
+    size = .size
+  )
 }
 
 

@@ -1,22 +1,24 @@
 #' @export
 coalesce <- function(..., .ptype = NULL, .size = NULL) {
-  args <- list2(...)
+  values <- list2(...)
 
   # Drop `NULL`s
   # TODO: `vctrs::list_drop_missing()`
-  args <- Filter(function(x) !is.null(x), args)
+  values <- Filter(function(x) !is.null(x), values)
+
+  if (length(values) == 0L) {
+    abort("`...` can't be empty.")
+  }
 
   # Recycle early so logical conditions computed below will be the same length
-  args <- vec_recycle_common(!!!args, .size = .size)
+  values <- vec_recycle_common(!!!values, .size = .size)
 
   # Name early to get correct indexing in `vec_case_when()` error messages
-  args <- name_unnamed_args(args)
+  values <- list_name(values)
 
-  not_missing <- lapply(args, vec_not_equal_na)
+  conditions <- lapply(values, vec_not_equal_na)
 
-  args <- vec_interleave(not_missing, args)
-
-  vec_case_when(!!!args, .ptype = .ptype)
+  vec_case_when(conditions = conditions, values = values, ptype = .ptype)
 }
 
 vec_not_equal_na <- function(x) {

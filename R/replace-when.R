@@ -8,13 +8,21 @@ replace_when <- function(x, ...) {
 
   size <- vec_size(x)
 
+  args <- list2(...)
+  args <- list_name(args)
+  args <- args_split(args)
+
+  conditions <- args$conditions
+  values <- args$values
+
   vec_case_when(
-    ...,
-    .default = x,
-    .default_arg = "x",
-    .missing = x,
-    .missing_arg = "x",
-    .ptype = ptype,
-    .size = size
+    conditions = conditions,
+    values = values,
+    default = x,
+    default_arg = "x",
+    missing = x,
+    missing_arg = "x",
+    ptype = ptype,
+    size = size
   )
 }

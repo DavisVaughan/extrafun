@@ -1,112 +1,121 @@
 #' @export
-vec_case_when <- function(...,
-                          .default = NULL,
-                          .default_arg = ".default",
-                          .missing = NULL,
-                          .missing_arg = ".missing",
-                          .ptype = NULL,
-                          .size = NULL,
-                          .call = caller_env()) {
-  args <- list2(...)
-  args <- name_unnamed_args(args)
+vec_case_when <- function(conditions,
+                          values,
+                          ...,
+                          conditions_arg = "",
+                          values_arg = "",
+                          default = NULL,
+                          default_arg = "default",
+                          missing = NULL,
+                          missing_arg = "missing",
+                          ptype = NULL,
+                          size = NULL,
+                          call = caller_env()) {
+  check_dots_empty0(..., call = call)
 
-  n_args <- length(args)
+  vec_check_list(conditions, arg = "conditions", call = call)
+  vec_check_list(values, arg = "values", call = call)
 
-  if (n_args == 0L) {
-    abort("`...` can't be empty.", call = .call)
-  }
-  if ((n_args %% 2) != 0L) {
-    message <- c(
-      "`...` must contain an even number of inputs.",
-      i = glue("{n_args} inputs were provided.")
+  n_conditions <- length(conditions)
+  n_values <- length(values)
+
+  if (n_conditions != n_values) {
+    message <- glue(
+      "The number of supplied conditions ({n_conditions}) must equal ",
+      "the number of supplied values ({n_values})."
     )
-    abort(message, call = .call)
+    abort(message, call = call)
+  }
+  if (n_conditions == 0L) {
+    abort("At least one condition must be supplied.", call = call)
   }
 
-  if (!is_string(.default_arg)) {
-    abort("`.default_arg` must be a string.", call = .call)
+  if (!is_string(conditions_arg)) {
+    abort("`conditions_arg` must be a string.", call = call)
   }
-  if (!is_string(.missing_arg)) {
-    abort("`.missing_arg` must be a string.", call = .call)
+  if (!is_string(values_arg)) {
+    abort("`values_arg` must be a string.", call = call)
   }
-
-  n_wheres <- n_args / 2L
-  loc_wheres <- seq.int(1L, n_args - 1L, by = 2)
-  wheres <- args[loc_wheres]
-  where_args <- names2(wheres)
-
-  for (i in seq_len(n_wheres)) {
-    where <- wheres[[i]]
-    where_arg <- where_args[[i]]
-
-    vec_assert(
-      x = where,
-      ptype = logical(),
-      arg = where_arg,
-      call = .call
-    )
+  if (!is_string(default_arg)) {
+    abort("`default_arg` must be a string.", call = call)
+  }
+  if (!is_string(missing_arg)) {
+    abort("`missing_arg` must be a string.", call = call)
   }
 
-  .size <- vec_size_common(
-    !!!wheres,
-    .size = .size,
-    .call = .call
-  )
+  conditions <- list_name(conditions, arg = conditions_arg)
+  values <- list_name(values, arg = values_arg)
 
-  n_values <- n_wheres
-  loc_values <- loc_wheres + 1L
-  values <- args[loc_values]
+  condition_args <- names2(conditions)
   value_args <- names2(values)
 
-  # Allow `.default` and `.missing` to participate in common type determination.
+  for (i in seq_len(n_conditions)) {
+    condition <- conditions[[i]]
+    condition_arg <- condition_args[[i]]
+
+    vec_assert(
+      x = condition,
+      ptype = logical(),
+      arg = condition_arg,
+      call = call
+    )
+  }
+
+  size <- vec_size_common(
+    !!!conditions,
+    .size = size,
+    .call = call
+  )
+
+  # Allow `default` and `missing` to participate in common type determination.
   # In terms of size/ptype behavior they are exactly like any other `values` element.
   # Have to collect inputs and splice them in all at once due to
   # https://github.com/r-lib/vctrs/issues/1570
-  extras <- list(.default, .missing)
-  names(extras) <- c(.default_arg, .missing_arg)
+  extras <- list(default, missing)
+  names(extras) <- c(default_arg, missing_arg)
   everything <- c(values, extras)
 
-  .ptype <- vec_ptype_common(
+  ptype <- vec_ptype_common(
     !!!everything,
-    .ptype = .ptype,
-    .call = .call
+    .ptype = ptype,
+    .call = call
   )
 
   # Cast early to generate correct error message indices
   values <- vec_cast_common(
     !!!values,
-    .to = .ptype,
-    .call = .call
+    .to = ptype,
+    .call = call
   )
 
-  if (is.null(.default)) {
-    .default <- vec_init(.ptype)
+  if (is.null(default)) {
+    default <- vec_init(ptype)
   } else {
-    .default <- vec_cast(
-      x = .default,
-      to = .ptype,
-      x_arg = .default_arg,
-      call = .call
+    default <- vec_cast(
+      x = default,
+      to = ptype,
+      x_arg = default_arg,
+      call = call
     )
   }
 
-  if (is.null(.missing)) {
-    .missing <- vec_init(.ptype)
+  if (is.null(missing)) {
+    missing <- vec_init(ptype)
   } else {
-    .missing <- vec_cast(
-      x = .missing,
-      to = .ptype,
-      x_arg = .missing_arg,
-      call = .call
+    missing <- vec_cast(
+      x = missing,
+      to = ptype,
+      x_arg = missing_arg,
+      call = call
     )
   }
 
   # Check for correct sizes
-  for (i in seq_len(n_wheres)) {
-    where <- wheres[[i]]
-    where_arg <- where_args[[i]]
+  for (i in seq_len(n_conditions)) {
+    condition <- conditions[[i]]
+    condition_arg <- condition_args[[i]]
 
-    vec_assert(where, size = .size, arg = where_arg, call = .call)
+    vec_assert(condition, size = size, arg = condition_arg, call = call)
   }
 
   value_sizes <- list_sizes(values)
@@ -118,40 +127,40 @@ vec_case_when <- function(...,
       value <- values[[i]]
       value_arg <- value_args[[i]]
 
-      vec_assert(value, size = .size, arg = value_arg, call = .call)
+      vec_assert(value, size = size, arg = value_arg, call = call)
     }
   }
 
-  default_size <- vec_size(.default)
+  default_size <- vec_size(default)
   if (default_size != 1L) {
-    vec_assert(.default, size = .size, arg = .default_arg, call = .call)
+    vec_assert(default, size = size, arg = default_arg, call = call)
   }
 
-  missing_size <- vec_size(.missing)
+  missing_size <- vec_size(missing)
   if (missing_size != 1L) {
-    vec_assert(.missing, size = .size, arg = .missing_arg, call = .call)
+    vec_assert(missing, size = size, arg = missing_arg, call = call)
   }
 
   n_used <- 0L
   locs <- vector("list", n_values)
 
-  # Starts as unused. Any `TRUE` value in `where` flips it to used.
-  are_unused <- vec_rep(TRUE, times = .size)
+  # Starts as unused. Any `TRUE` value in `condition` flips it to used.
+  are_unused <- vec_rep(TRUE, times = size)
 
   # Track unhandled missings using boolean operations.
-  # If `FALSE`, any `NA` in `where` flips it to `NA`.
-  # Any `TRUE` in `where` overrides both `NA` and `FALSE` to `TRUE`.
-  are_missing <- vec_rep(FALSE, times = .size)
+  # If `FALSE`, any `NA` in `condition` flips it to `NA`.
+  # Any `TRUE` in `condition` overrides both `NA` and `FALSE` to `TRUE`.
+  are_missing <- vec_rep(FALSE, times = size)
 
-  for (i in seq_len(n_wheres)) {
+  for (i in seq_len(n_conditions)) {
     if (!any(are_unused)) {
       break
     }
 
-    where <- wheres[[i]]
+    condition <- conditions[[i]]
 
-    loc <- are_unused & where
-    are_missing <- are_missing | where
+    loc <- are_unused & condition
+    are_missing <- are_missing | condition
 
     loc <- which(loc)
     locs[[i]] <- loc
@@ -160,9 +169,9 @@ vec_case_when <- function(...,
     n_used <- n_used + 1L
   }
 
-  if (n_used == n_wheres) {
-    # If all of the `where` conditions are used,
-    # then we check if we need `.missing` or `.default`
+  if (n_used == n_conditions) {
+    # If all of the `conditions` are used,
+    # then we check if we need `missing` or `default`
 
     are_missing <- vec_equal_na(are_missing)
 
@@ -172,7 +181,7 @@ vec_case_when <- function(...,
       n_used <- n_used + 1L
       n_values <- n_values + 1L
       locs[[n_values]] <- are_missing
-      values[[n_values]] <- .missing
+      values[[n_values]] <- missing
       value_sizes[[n_values]] <- missing_size
 
       # Missing locations don't count as unused
@@ -185,7 +194,7 @@ vec_case_when <- function(...,
       n_used <- n_used + 1L
       n_values <- n_values + 1L
       locs[[n_values]] <- are_unused
-      values[[n_values]] <- .default
+      values[[n_values]] <- default
       value_sizes[[n_values]] <- default_size
     }
   }
@@ -219,6 +228,6 @@ vec_case_when <- function(...,
   vec_unchop(
     x = values,
     indices = locs,
-    ptype = .ptype
+    ptype = ptype
   )
 }

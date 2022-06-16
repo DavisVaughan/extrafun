@@ -5,30 +5,18 @@ fct_when <- function(...,
                      .size = NULL,
                      .ordered = TRUE) {
   args <- list2(...)
-  args <- name_unnamed_args(args)
+  args <- list_name(args)
+  args <- args_split(args)
 
-  n_args <- length(args)
+  conditions <- args$conditions
+  values <- args$values
 
   if (!is_bool(.ordered)) {
     abort("`.ordered` must be a single `TRUE` or `FALSE`.")
   }
 
-  if (n_args == 0L) {
-    abort("`...` can't be empty.")
-  }
-  if ((n_args %% 2) != 0L) {
-    message <- c(
-      "`...` must contain an even number of inputs.",
-      i = glue("{n_args} inputs were provided.")
-    )
-    abort(message)
-  }
-
   # Check that value args are length 1.
   # They represent the factor levels, in order.
-  values <- seq.int(1L, n_args - 1L, by = 2) + 1L
-  values <- args[values]
-
   sizes <- list_sizes(values)
   scalars <- sizes == 1L
   if (!all(scalars)) {
@@ -66,11 +54,14 @@ fct_when <- function(...,
   # Let `vec_case_when()` handle the type casting.
   # Called after the length checks so length issues have good error messages.
   out <- vec_case_when(
-    !!!args,
-    .default = .default,
-    .missing = .missing,
-    .ptype = character(),
-    .size = .size
+    conditions = conditions,
+    values = values,
+    default = .default,
+    default_arg = ".default",
+    missing = .missing,
+    missing_arg = ".missing",
+    ptype = character(),
+    size = .size
   )
 
   # Include `.default` and `.missing` at the end, in that order
