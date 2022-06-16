@@ -125,15 +125,15 @@ test_that("`values` must be size 1 or same size as the `conditions`", {
   })
 })
 
-test_that("Unhandled `NA` are given a value of `missing`", {
+test_that("Unhandled `NA` are given a value of `default`", {
   expect_identical(
-    vec_case_when(list(NA), list(1), default = 2),
+    vec_case_when(list(NA), list(1)),
     NA_real_
   )
 
   expect_identical(
-    vec_case_when(list(NA), list(1), default = 2, missing = 3),
-    3
+    vec_case_when(list(NA), list(1), default = 2),
+    2
   )
 
   expect_identical(
@@ -148,23 +148,7 @@ test_that("Unhandled `NA` are given a value of `missing`", {
       ),
       default = 4
     ),
-    c(NA, NA, 2, 4)
-  )
-
-  expect_identical(
-    vec_case_when(
-      list(
-        c(FALSE, NA, TRUE, FALSE),
-        c(NA, FALSE, TRUE, FALSE)
-      ),
-      list(
-        2,
-        3
-      ),
-      default = 4,
-      missing = 5
-    ),
-    c(5, 5, 2, 4)
+    c(4, 4, 2, 4)
   )
 })
 
@@ -224,13 +208,6 @@ test_that("A `NULL` `default` fills in with missing values", {
   )
 })
 
-test_that("A `NULL` `missing` fills in with missing values", {
-  expect_identical(
-    vec_case_when(list(c(TRUE, NA, NA)), list(1)),
-    c(1, NA, NA)
-  )
-})
-
 test_that("`default` fills in all unused slots", {
   expect_identical(
     vec_case_when(list(c(TRUE, FALSE, FALSE)), list(1), default = 2),
@@ -259,40 +236,14 @@ test_that("`default` can be vectorized, and is sliced to fit as needed", {
   expect_identical(out, c(11L, 2L, 13L, 4L, 10L))
 })
 
-test_that("`missing` can be vectorized, and is sliced to fit as needed", {
-  out <- vec_case_when(
-    list(
-      c(NA, NA, FALSE, TRUE, FALSE),
-      c(FALSE, TRUE, NA, FALSE, TRUE)
-    ),
-    list(
-      1:5,
-      6:10
-    ),
-    missing = 11:15
-  )
-
-  expect_identical(out, c(11L, 7L, 13L, 4L, 10L))
-})
-
 test_that("`default` must be size 1 or same size as `conditions` (exact same as any other `values` input)", {
   expect_snapshot(error = TRUE, {
     vec_case_when(list(FALSE), list(1L), default = 2:3)
   })
 })
 
-test_that("`missing` must be size 1 or same size as `conditions` (exact same as any other `values` input)", {
-  expect_snapshot(error = TRUE, {
-    vec_case_when(list(FALSE), list(1L), missing = 2:3)
-  })
-})
-
 test_that("`default` participates in common type determination (exact same as any other `values` input)", {
   expect_identical(vec_case_when(list(FALSE), list(1L), default = 2), 2)
-})
-
-test_that("`missing` participates in common type determination (exact same as any other `values` input)", {
-  expect_identical(vec_case_when(list(NA), list(1L), missing = 2), 2)
 })
 
 test_that("`default` that is an unused logical `NA` can still be cast to `values` ptype", {
@@ -301,27 +252,12 @@ test_that("`default` that is an unused logical `NA` can still be cast to `values
   expect_identical(vec_case_when(list(TRUE), list("x"), default = NA), "x")
 })
 
-test_that("`missing` that is an unused logical `NA` can still be cast to `values` ptype", {
-  # Requires that casting happen before recycling, because it recycles
-  # to size zero, resulting in a logical rather than an unspecified.
-  expect_identical(vec_case_when(list(TRUE), list("x"), missing = NA), "x")
-})
-
 test_that("`default_arg` can be customized", {
   expect_snapshot(error = TRUE, {
     vec_case_when(list(FALSE), list(1L), default = 2:3, default_arg = "foo")
   })
   expect_snapshot(error = TRUE, {
     vec_case_when(list(FALSE), list(1L), default = "x", default_arg = "foo")
-  })
-})
-
-test_that("`missing_arg` can be customized", {
-  expect_snapshot(error = TRUE, {
-    vec_case_when(list(FALSE), list(1L), missing = 2:3, missing_arg = "foo")
-  })
-  expect_snapshot(error = TRUE, {
-    vec_case_when(list(FALSE), list(1L), missing = "x", missing_arg = "foo")
   })
 })
 
@@ -340,12 +276,6 @@ test_that("`values_arg` is validated", {
 test_that("`default_arg` is validated", {
   expect_snapshot(error = TRUE, {
     vec_case_when(list(TRUE), list(1), default_arg = 1)
-  })
-})
-
-test_that("`missing_arg` is validated", {
-  expect_snapshot(error = TRUE, {
-    vec_case_when(list(TRUE), list(1), missing_arg = 1)
   })
 })
 

@@ -5,12 +5,6 @@ test_that("passes through to vec_case_when()", {
   )
 })
 
-test_that("`.missing` shows the right arg name", {
-  expect_snapshot(error = TRUE, {
-    case_when(TRUE, 1, .missing = "x")
-  })
-})
-
 test_that("`.default` shows the right arg name", {
   expect_snapshot(error = TRUE, {
     case_when(TRUE, 1, .default = "x")

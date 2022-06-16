@@ -26,13 +26,6 @@
     Error <vctrs_error_assert_size>
       `default` must have size 1, not size 2.
 
-# `missing` must be size 1 or same size as `conditions` (exact same as any other `values` input)
-
-    Code
-      vec_case_when(list(FALSE), list(1L), missing = 2:3)
-    Error <vctrs_error_assert_size>
-      `missing` must have size 1, not size 2.
-
 # `default_arg` can be customized
 
     Code
@@ -44,20 +37,6 @@
 
     Code
       vec_case_when(list(FALSE), list(1L), default = "x", default_arg = "foo")
-    Error <vctrs_error_incompatible_type>
-      Can't combine `..1` <integer> and `foo` <character>.
-
-# `missing_arg` can be customized
-
-    Code
-      vec_case_when(list(FALSE), list(1L), missing = 2:3, missing_arg = "foo")
-    Error <vctrs_error_assert_size>
-      `foo` must have size 1, not size 2.
-
----
-
-    Code
-      vec_case_when(list(FALSE), list(1L), missing = "x", missing_arg = "foo")
     Error <vctrs_error_incompatible_type>
       Can't combine `..1` <integer> and `foo` <character>.
 
@@ -81,13 +60,6 @@
       vec_case_when(list(TRUE), list(1), default_arg = 1)
     Error <rlang_error>
       `default_arg` must be a string.
-
-# `missing_arg` is validated
-
-    Code
-      vec_case_when(list(TRUE), list(1), missing_arg = 1)
-    Error <rlang_error>
-      `missing_arg` must be a string.
 
 # `conditions` must all be the same size
 

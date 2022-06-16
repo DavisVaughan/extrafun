@@ -1,10 +1,3 @@
-# `.missing` shows the right arg name
-
-    Code
-      case_when(TRUE, 1, .missing = "x")
-    Error <vctrs_error_incompatible_type>
-      Can't combine `..2` <double> and `.missing` <character>.
-
 # `.default` shows the right arg name
 
     Code

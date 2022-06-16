@@ -20,8 +20,6 @@ replace_when <- function(x, ...) {
     values = values,
     default = x,
     default_arg = "x",
-    missing = x,
-    missing_arg = "x",
     ptype = ptype,
     size = size
   )

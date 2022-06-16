@@ -1,7 +1,6 @@
 #' @export
 fct_when <- function(...,
                      .default = NULL,
-                     .missing = NULL,
                      .size = NULL,
                      .ordered = TRUE) {
   args <- list2(...)
@@ -42,15 +41,6 @@ fct_when <- function(...,
     abort(message)
   }
 
-  # Check that `.missing` is length 1 if supplied
-  if (!is.null(.missing) && vec_size(.missing) != 1L) {
-    message <- c(
-      "`.missing` must be a string.",
-      i = glue("`.missing` is length {vec_size(.missing)}.")
-    )
-    abort(message)
-  }
-
   # Let `vec_case_when()` handle the type casting.
   # Called after the length checks so length issues have good error messages.
   out <- vec_case_when(
@@ -58,15 +48,13 @@ fct_when <- function(...,
     values = values,
     default = .default,
     default_arg = ".default",
-    missing = .missing,
-    missing_arg = ".missing",
     ptype = character(),
     size = .size
   )
 
-  # Include `.default` and `.missing` at the end, in that order
+  # Include `.default` at the end
   levels <- unname(values)
-  levels <- c(levels, list(.default, .missing))
+  levels <- c(levels, list(.default))
   levels <- vec_unchop(levels, ptype = character())
 
   if (vec_duplicate_any(levels)) {

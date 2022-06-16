@@ -34,68 +34,37 @@ test_that("levels are used regardless of whether they appear in the final data",
     levels(fct_when(TRUE, "x", FALSE, "y", .default = "z")),
     c("x", "y", "z")
   )
-  expect_identical(
-    levels(fct_when(TRUE, "x", FALSE, "y", .missing = "z")),
-    c("x", "y", "z")
-  )
 })
 
-test_that("`.default` level comes before `.missing` level", {
-  expect_identical(
-    levels(fct_when(TRUE, "x", FALSE, "y", .default = "z", .missing = "w")),
-    c("x", "y", "z", "w")
-  )
-})
-
-test_that("`.default` is used when all conditions are `FALSE`", {
+test_that("`.default` is used when no condition is `TRUE`", {
   out <- fct_when(
-    c(TRUE, FALSE, FALSE),
+    c(TRUE, FALSE, FALSE, NA),
     "a",
-    c(TRUE, TRUE, FALSE),
+    c(TRUE, TRUE, FALSE, NA),
     "b",
     .default = "c"
   )
 
-  expect_identical(out, factor(c("a", "b", "c"), ordered = TRUE))
+  expect_identical(out, factor(c("a", "b", "c", "c"), ordered = TRUE))
 })
 
-test_that("`.missing` is used when at least one condition is `NA` and none are `TRUE`", {
+test_that("unhandled value results in implicit `NA` level", {
   out <- fct_when(
-    c(TRUE, NA, NA),
+    c(TRUE, NA, FALSE, NA),
     "a",
-    c(TRUE, TRUE, FALSE),
-    "b",
-    .missing = "c"
-  )
-
-  expect_identical(out, factor(c("a", "b", "c"), ordered = TRUE))
-})
-
-test_that("unhandled `NA` results in implicit `NA` level", {
-  out <- fct_when(
-    c(TRUE, NA, FALSE),
-    "a",
-    c(TRUE, TRUE, NA),
-    "b",
-    .default = "c"
+    c(TRUE, TRUE, FALSE, NA),
+    "b"
   )
 
   expect_identical(
     out,
-    factor(c("a", "b", NA), levels = c("a", "b", "c"), ordered = TRUE)
+    factor(c("a", "b", NA, NA), levels = c("a", "b"), ordered = TRUE)
   )
 })
 
 test_that("explicit `NA` in `.default` results in an explicit `NA` level", {
   expect_identical(
     levels(fct_when(TRUE, "x", FALSE, "y", .default = NA)),
-    c("x", "y", NA)
-  )
-})
-
-test_that("explicit `NA` in `.missing` results in an explicit `NA` level", {
-  expect_identical(
-    levels(fct_when(TRUE, "x", FALSE, "y", .missing = NA)),
     c("x", "y", NA)
   )
 })
@@ -119,12 +88,6 @@ test_that("`.default` is cast to character", {
   })
 })
 
-test_that("`.missing` is cast to character", {
-  expect_snapshot(error = TRUE, {
-    fct_when(TRUE, "x", .missing = 1)
-  })
-})
-
 test_that("levels can't be duplicated", {
   # Make sure indexing is correct in error message!
   expect_snapshot(error = TRUE, {
@@ -133,10 +96,6 @@ test_that("levels can't be duplicated", {
 
   expect_snapshot(error = TRUE, {
     fct_when(c(TRUE, FALSE), "x", .default = "x")
-  })
-
-  expect_snapshot(error = TRUE, {
-    fct_when(c(TRUE, FALSE), "x", .missing = "x")
   })
 })
 
@@ -166,12 +125,6 @@ test_that("must contain an even number of inputs", {
 test_that("`.default` must be a single string", {
   expect_snapshot(error = TRUE, {
     fct_when(c(TRUE, FALSE), "x", .default = c("a", "b"))
-  })
-})
-
-test_that("`.missing` must be a single string", {
-  expect_snapshot(error = TRUE, {
-    fct_when(c(TRUE, FALSE), "x", .missing = c("a", "b"))
   })
 })
 

@@ -7,7 +7,6 @@
 case_match <- function(.x,
                        ...,
                        .default = NULL,
-                       .missing = NULL,
                        .ptype = NULL,
                        .size = NULL) {
   args <- collect_match_dots(..., .x = .x)
@@ -15,7 +14,6 @@ case_match <- function(.x,
   case_when(
     !!!args,
     .default = .default,
-    .missing = .missing,
     .ptype = .ptype,
     .size = .size
   )

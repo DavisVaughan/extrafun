@@ -1,7 +1,6 @@
 #' @export
 case_when <- function(...,
                       .default = NULL,
-                      .missing = NULL,
                       .ptype = NULL,
                       .size = NULL) {
   args <- list2(...)
@@ -16,8 +15,6 @@ case_when <- function(...,
     values = values,
     default = .default,
     default_arg = ".default",
-    missing = .missing,
-    missing_arg = ".missing",
     ptype = .ptype,
     size = .size
   )

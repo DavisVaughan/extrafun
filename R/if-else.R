@@ -27,7 +27,8 @@ if_else <- function(condition,
   vec_case_when(
     conditions = conditions,
     values = values,
-    missing = missing,
+    default = missing,
+    default_arg = "missing",
     ptype = ptype,
     size = size
   )
