@@ -4,7 +4,7 @@ fct_when <- function(...,
                      .size = NULL,
                      .ordered = TRUE) {
   args <- list2(...)
-  args <- list_name(args)
+  args <- set_names(args, list_names(args))
   args <- args_split(args)
 
   conditions <- args$conditions

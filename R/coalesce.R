@@ -14,7 +14,7 @@ coalesce <- function(..., .ptype = NULL, .size = NULL) {
   values <- vec_recycle_common(!!!values, .size = .size)
 
   # Name early to get correct indexing in `vec_case_when()` error messages
-  values <- list_name(values)
+  values <- set_names(values, list_names(values))
 
   conditions <- lapply(values, vec_not_equal_na)
 

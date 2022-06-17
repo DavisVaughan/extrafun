@@ -4,7 +4,7 @@ case_when <- function(...,
                       .ptype = NULL,
                       .size = NULL) {
   args <- list2(...)
-  args <- list_name(args)
+  args <- set_names(args, list_names(args))
   args <- args_split(args)
 
   conditions <- args$conditions

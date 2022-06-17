@@ -24,11 +24,6 @@ args_split <- function(args, error_call = caller_env()) {
   )
 }
 
-list_name <- function(x, arg = "") {
-  names(x) <- list_names(x, arg)
-  x
-}
-
 list_names <- function(x, arg = "") {
   names <- names2(x)
   unnamed <- names == ""

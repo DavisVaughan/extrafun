@@ -26,7 +26,7 @@ replace_match <- function(.x, ...) {
 
 collect_match_dots <- function(..., .x, .call = caller_env()) {
   args <- list2(...)
-  args <- list_name(args)
+  args <- set_names(args, list_names(args))
 
   n_args <- length(args)
 

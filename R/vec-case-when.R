@@ -38,11 +38,11 @@ vec_case_when <- function(conditions,
     abort("`default_arg` must be a string.", call = call)
   }
 
-  conditions <- list_name(conditions, arg = conditions_arg)
-  values <- list_name(values, arg = values_arg)
+  condition_args <- list_names(conditions, arg = conditions_arg)
+  value_args <- list_names(values, arg = values_arg)
 
-  condition_args <- names2(conditions)
-  value_args <- names2(values)
+  names(conditions) <- condition_args
+  names(values) <- value_args
 
   for (i in seq_len(n_conditions)) {
     condition <- conditions[[i]]
