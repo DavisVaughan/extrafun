@@ -14,6 +14,8 @@ vec_case_when <- function(conditions,
   vec_check_list(conditions, arg = "conditions", call = call)
   vec_check_list(values, arg = "values", call = call)
 
+  list_check_all_vectors(values, arg = values_arg, call = call)
+
   n_conditions <- length(conditions)
   n_values <- length(values)
 

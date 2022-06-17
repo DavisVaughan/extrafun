@@ -208,3 +208,31 @@
     Error <vctrs_error_incompatible_type>
       Can't combine `foo[[1]]` <double> and `foo$x` <character>.
 
+---
+
+    Code
+      vec_case_when(list(TRUE), list(NULL))
+    Error <vctrs_error_scalar_type>
+      `..1` must be a vector, not NULL.
+
+---
+
+    Code
+      vec_case_when(list(TRUE), list(x = NULL))
+    Error <vctrs_error_scalar_type>
+      `x` must be a vector, not NULL.
+
+---
+
+    Code
+      vec_case_when(list(TRUE), list(NULL), values_arg = "foo")
+    Error <vctrs_error_scalar_type>
+      `foo[[1]]` must be a vector, not NULL.
+
+---
+
+    Code
+      vec_case_when(list(TRUE), list(x = NULL), values_arg = "foo")
+    Error <vctrs_error_scalar_type>
+      `foo$x` must be a vector, not NULL.
+
