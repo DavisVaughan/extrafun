@@ -130,6 +130,7 @@ vec_case_when <- function(conditions,
 
   for (i in seq_len(n_conditions)) {
     if (!any(are_unused)) {
+      # Early exit if all values are matched, for performance
       break
     }
 
